@@ -13,7 +13,7 @@
     "db:migrate": "tsx ./lib/db/migrate.ts"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.19.4",
+    "@clerk/nextjs": "^6.19.5",
     "@heroui/card": "^2.2.18",
     "@heroui/system": "^2.4.15",
     "@heroui/theme": "^2.4.15",
