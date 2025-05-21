@@ -12,14 +12,14 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { Card, CardBody } from "@heroui/react";
 export default function SignInForm() {
   const router = useRouter();
   const { signIn, isLoaded, setActive } = useSignIn();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const { register, handleSubmit } = useForm<z.infer<typeof signInSchema>>({
+  const { register, handleSubmit } = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       identifier: "",
@@ -40,13 +40,12 @@ export default function SignInForm() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/dashboard"); // redirect after login
       } else {
         setAuthError("Sign in error");
       }
     } catch (error: any) {
       setAuthError(
-        error.errors?.[0]?.message || "An error occurred during sign in."
+        error.errors?.[0]?.message || "An error occured during sign in process"
       );
     } finally {
       setIsSubmitting(false);
@@ -62,27 +61,6 @@ export default function SignInForm() {
         </p>
       </CardHeader>
       <Divider />
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 p-6"
-      >
-        <Input
-          type="email"
-          placeholder="Email"
-          {...register("identifier")}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          {...register("password")}
-          required
-        />
-        {authError && <p className="text-red-500 text-sm">{authError}</p>}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in..." : "Sign In"}
-        </Button>
-      </form>
     </Card>
   );
 }
