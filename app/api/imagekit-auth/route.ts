@@ -9,11 +9,19 @@ const imagekit = new ImageKit({
 });
 
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const authParams = imagekit.getAuthenticationParameters();
+    return NextResponse.json(authParams);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Failed to generate authentication parameters for ImageKit",
+      },
+      { status: 500 }
+    );
   }
-  const authParams = imagekit.getAuthenticationParameters();
-
-  return NextResponse.json(authParams);
 }
