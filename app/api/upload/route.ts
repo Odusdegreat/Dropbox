@@ -39,5 +39,13 @@ export async function POST(request: NextRequest) {
     };
 
     const [newFile] = await db.insert(files).values(fileData).returning();
-  } catch (error) {}
+    return NextResponse.json(newFile);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Failed to save info to database",
+      },
+      { status: 500 }
+    );
+  }
 }
