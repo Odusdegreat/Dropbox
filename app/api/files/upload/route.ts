@@ -30,7 +30,29 @@ export async function POST(request: NextRequest) {
     }
 
     if (!file) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "NO file provided" }, { status: 401 });
     }
+    if (parentId) {
+    const [parentFolder] = await db
+      .select();
+      .from(files)
+      .where(
+        and(
+            eq(files.id, parentId),
+            eq(files.userId, userId),
+            eq(files.isFolder, true)
+        )
+      )
+
+    }
+    // totally optional based on your flow
+    if(!parentId){
+        return NextResponse.json({ error: "Parent folder not found" }, { status: 401 });
+    }
+
+   if(file.type.startsWith("image/") && file.type !== "application/pdf"){
+    return NextResponse.json({ error: "Only images and pdf are supported" }, { status: 401 });
+   }
+
   } catch (error) {}
 }
