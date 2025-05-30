@@ -19,7 +19,18 @@ export async function POST(request: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    //pasrse from data
     const formData = await request.formData();
-    formData.get("file") as File;
+    const file = formData.get("file") as File;
+    const formUserId = formData.get("userId") as string;
+    const parentId = (formData.get("parentId") as string) || null;
+
+    if (formUserId !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!file) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   } catch (error) {}
 }
