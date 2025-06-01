@@ -54,5 +54,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Only images and pdf are supported" }, { status: 401 });
    }
 
+
+    const buffer = await file.arrayBuffer()
+    const fileBuffer = Buffer.from(buffer)
+
+    const folderPath = parentId ? `/dropbox/${userId}/folder/${parentId}` : `/dropbox/${userId}`
+    const fileExtension =
+    const uniqueFilename = `${uuidv4()}.${fileExtension}`
+
+    await imagekit.upload({
+      file: fileBuffer,
+      fileName: fileBuffer
+    })
   } catch (error) {}
 }
