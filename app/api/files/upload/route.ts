@@ -59,12 +59,24 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(buffer)
 
     const folderPath = parentId ? `/dropbox/${userId}/folder/${parentId}` : `/dropbox/${userId}`
-    const fileExtension =
+   const originalFilename = file.name
+    const fileExtension = originalFilename.split(".").pop () || ""
+    //check for empty extension
+    //validation for not storing exe, php
     const uniqueFilename = `${uuidv4()}.${fileExtension}`
-
     await imagekit.upload({
       file: fileBuffer,
-      fileName: fileBuffer
+      fileName: uniqueFilename,
+      folder: folderPath,
+      useUniqueFileName: false
     })
+
+    const fileData = {
+
+    }
+
+  const [NewFile] = await db.insert(files).values(fileData).returning()
+
+  return NextResponse.json({ error: "Failed to upload file" }, { status: 401 });
   } catch (error) {}
 }
