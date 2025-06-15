@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     //check for empty extension
     //validation for not storing exe, php
     const uniqueFilename = `${uuidv4()}.${fileExtension}`
-    await imagekit.upload({
+   const uploadResponse = await imagekit.upload({
       file: fileBuffer,
       fileName: uniqueFilename,
       folder: folderPath,
@@ -72,11 +72,26 @@ export async function POST(request: NextRequest) {
     })
 
     const fileData = {
-
+      name: originalFilename,
+      path: uploadResponse.filePath,
+      size: file.size,
+      type: file.type,
+      fileUrl: uploadResponse.url,
+      thumbnailUrl: uploadResponse.thumbnailUrl || null,
+      userId: userId,
+      parentId: parentId,
+      isFolder: false,
+      isStarred: false,
+      isTrash: false,
     }
 
-  const [NewFile] = await db.insert(files).values(fileData).returning()
+  const [newFile] = await db.insert(files).values(fileData).returning()
 
-  return NextResponse.json({ error: "Failed to upload file" }, { status: 401 });
-  } catch (error) {}
+  return NextResponse.json(newFile); 
+  } catch (error) {
+    return NextResponse.json(
+       { error: "Failed to upload file" }, 
+    { status: 401 },
+    );
+  }
 }
