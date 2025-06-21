@@ -26,5 +26,25 @@ export async function PATCH(
       .select()
       .from(files)
       .where(and(eq(files.id, fileId), eq(files.userId, userId)));
-  } catch (error) {}
+
+    if (!file) {
+      return NextResponse.json({ error: "File not found" }, { status: 401 });
+    }
+
+    //toggle star status
+
+    const updatedFile = await db
+      .update(files)
+      .set({ isStarred: !file.isStarred })
+      .where(and(eq((files.id, fileId), eq(files.userId, userId))))
+      .returning();
+    const updatedFile = updatedFiles[0];
+
+    return NextResponse.json(updatedFile);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to update the file" },
+      { status: 500 }
+    );
+  }
 }
