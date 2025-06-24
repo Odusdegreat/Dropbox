@@ -1,11 +1,13 @@
 "use client";
+
+import { ThemeProvider } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
-import { ThemeProviderProps as NextThemesProvider } from "next-themes";
 import { ImageKitProvider } from "imagekitio-next";
+import { HeroUIProvider } from "@heroui/react";
 
 export interface ProviderProps {
   children: React.ReactNode;
-  themeProp?: ThemeProviderProps;
+  themeProps?: ThemeProviderProps;
 }
 
 const authenticator = async () => {
@@ -18,14 +20,17 @@ const authenticator = async () => {
     throw error;
   }
 };
+
 export function Providers({ children, themeProps }: ProviderProps) {
   return (
-    <ImageKitProvider
-      authenticator={authenticator}
-      publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || ""}
-      urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || ""}
-    >
-      {children}
-    </ImageKitProvider>
+    <ThemeProvider {...themeProps}>
+      <ImageKitProvider
+        authenticator={authenticator}
+        publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || ""}
+        urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || ""}
+      >
+        <HeroUIProvider>{children}</HeroUIProvider>
+      </ImageKitProvider>
+    </ThemeProvider>
   );
 }
