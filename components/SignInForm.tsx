@@ -47,10 +47,20 @@ export default function SignInForm() {
       } else {
         setAuthError("Sign in error");
       }
-    } catch (error: any) {
-      setAuthError(
-        error.errors?.[0]?.message || "An error occurred during sign in."
-      );
+    } catch (error: unknown) {
+      type ClerkError = { errors: { message: string }[] };
+
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "errors" in error &&
+        Array.isArray((error as ClerkError).errors) &&
+        (error as ClerkError).errors[0]?.message
+      ) {
+        setAuthError((error as ClerkError).errors[0].message);
+      } else {
+        setAuthError("An error occurred during sign in.");
+      }
     } finally {
       setIsSubmitting(false);
     }

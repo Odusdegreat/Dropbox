@@ -1,9 +1,9 @@
-import {db} from "@/lib/db"
+import { db } from "@/lib/db";
 import { files } from "@/lib/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq, and } from "drizzle-orm";
-import {NextRequest, NextResponse } from "next/server";
-import {v4 as uuidv4} from "uuid"
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -25,48 +25,51 @@ export async function POST(request: NextRequest) {
     }
 
     if (parentId) {
-     const [parentFolder] await db
-      .select()
-      .from(files)
-      .where(
-        and(
-            eq(files.id, parentId)
+      const [parentFolder]: (typeof files.$inferSelect)[] = await db
+        .select()
+        .from(files)
+        .where(
+          and(
+            eq(files.id, parentId),
             eq(files.userId, userId),
             eq(files.isFolder, true)
-        )
-      )
-      if(!parentFolder){
+          )
+        );
+      if (!parentFolder) {
         return NextResponse.json(
-            {error: "Parent folder not found"},
-            {status: 401}
+          { error: "Parent folder not found" },
+          { status: 401 }
         );
       }
     }
 
-
     //create a folder in database
-    const folderData ={
-        id: uuidv4(),
-        name: name.trim(),
-        path:`/folders/${userId}${uuidv4()}`
-        size: 0,
-        type: "folder",
-        fileUrl:"",
-        thumbnailUrl: null,
-        userId,
-        parentId,
-        isFolder: true,
-        isStarred: false,
-        isTrash: false,
-        
-    }
-   const [newFolder] = await db.insert(files).values(folderData).returning()
+    const folderData = {
+      id: uuidv4(),
+      name: name.trim(),
+      path: `/folders/${userId}${uuidv4()}`,
+      size: 0,
+      type: "folder",
+      fileUrl: "",
+      thumbnailUrl: null,
+      userId,
+      parentId,
+      isFolder: true,
+      isStarred: false,
+      isTrash: false,
+    };
+    const [newFolder] = await db.insert(files).values(folderData).returning();
 
-   return NextResponse.json({
-    success: true,
-    message: "Folder created successfully",
-    folder: newFolder
-   })
-    
-  } catch (error) {}
+    return NextResponse.json({
+      success: true,
+      message: "Folder created successfully",
+      folder: newFolder,
+    });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

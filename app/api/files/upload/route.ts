@@ -33,43 +33,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "NO file provided" }, { status: 401 });
     }
     if (parentId) {
-    const [parentFolder] = await db
-      .select();
-      .from(files)
-      .where(
-        and(
+      await db
+        .select()
+        .from(files)
+        .where(
+          and(
             eq(files.id, parentId),
             eq(files.userId, userId),
             eq(files.isFolder, true)
+          )
         )
-      )
-
+        .execute();
     }
     // totally optional based on your flow
-    if(!parentId){
-        return NextResponse.json({ error: "Parent folder not found" }, { status: 401 });
+    if (!parentId) {
+      return NextResponse.json(
+        { error: "Parent folder not found" },
+        { status: 401 }
+      );
     }
 
-   if(file.type.startsWith("image/") && file.type !== "application/pdf"){
-    return NextResponse.json({ error: "Only images and pdf are supported" }, { status: 401 });
-   }
+    if (file.type.startsWith("image/") && file.type !== "application/pdf") {
+      return NextResponse.json(
+        { error: "Only images and pdf are supported" },
+        { status: 401 }
+      );
+    }
 
+    const buffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(buffer);
 
-    const buffer = await file.arrayBuffer()
-    const fileBuffer = Buffer.from(buffer)
-
-    const folderPath = parentId ? `/dropbox/${userId}/folder/${parentId}` : `/dropbox/${userId}`
-   const originalFilename = file.name
-    const fileExtension = originalFilename.split(".").pop () || ""
+    const folderPath = parentId
+      ? `/dropbox/${userId}/folder/${parentId}`
+      : `/dropbox/${userId}`;
+    const originalFilename = file.name;
+    const fileExtension = originalFilename.split(".").pop() || "";
     //check for empty extension
     //validation for not storing exe, php
-    const uniqueFilename = `${uuidv4()}.${fileExtension}`
-   const uploadResponse = await imagekit.upload({
+    const uniqueFilename = `${uuidv4()}.${fileExtension}`;
+    const uploadResponse = await imagekit.upload({
       file: fileBuffer,
       fileName: uniqueFilename,
       folder: folderPath,
-      useUniqueFileName: false
-    })
+      useUniqueFileName: false,
+    });
 
     const fileData = {
       name: originalFilename,
@@ -83,15 +90,16 @@ export async function POST(request: NextRequest) {
       isFolder: false,
       isStarred: false,
       isTrash: false,
-    }
+    };
 
-  const [newFile] = await db.insert(files).values(fileData).returning()
+    const [newFile] = await db.insert(files).values(fileData).returning();
 
-  return NextResponse.json(newFile); 
+    return NextResponse.json(newFile);
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
-       { error: "Failed to upload file" }, 
-    { status: 401 },
+      { error: "Failed to upload file" },
+      { status: 401 }
     );
   }
 }
