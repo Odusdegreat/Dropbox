@@ -1,4 +1,5 @@
 "use client";
+
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -48,18 +49,25 @@ export default function SignInForm() {
         setAuthError("Sign in error");
       }
     } catch (error: unknown) {
-      type ClerkError = { errors: { message: string }[] };
+      type ClerkError = { errors: { message: string; code: string }[] };
 
       if (
         typeof error === "object" &&
         error !== null &&
         "errors" in error &&
-        Array.isArray((error as ClerkError).errors) &&
-        (error as ClerkError).errors[0]?.message
+        Array.isArray((error as ClerkError).errors)
       ) {
-        setAuthError((error as ClerkError).errors[0].message);
+        const err = (error as ClerkError).errors[0];
+
+        if (err.code === "form_identifier_not_found") {
+          setAuthError("Account not found. Please sign up first.");
+        } else if (err.code === "form_password_incorrect") {
+          setAuthError("Incorrect password. Please try again.");
+        } else {
+          setAuthError(err.message);
+        }
       } else {
-        setAuthError("An error occurred during sign in.");
+        setAuthError("An unexpected error occurred during sign in.");
       }
     } finally {
       setIsSubmitting(false);

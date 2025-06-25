@@ -1,103 +1,91 @@
-import Image from "next/image";
+"use client";
+import React from "react";
+import { useSignUp } from "@clerk/nextjs";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { signUpSchema } from "@/schemas/signUpSchema";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+export default function HomePage() {
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [authError, setAuthError] = React.useState<string | null>(null);
 
-export default function Home() {
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(signUpSchema),
+  });
+
+  async function onSubmit(data: z.infer<typeof signUpSchema>) {
+    setIsSubmitting(true);
+    setAuthError(null);
+    try {
+      if (!isLoaded) return;
+      const result = await signUp.create({
+        emailAddress: data.email,
+        password: data.password,
+      });
+      await setActive({ session: result.createdSessionId });
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      type ClerkError = { errors: { message: string }[] };
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "errors" in error &&
+        Array.isArray((error as ClerkError).errors) &&
+        (error as ClerkError).errors[0]?.message
+      ) {
+        setAuthError((error as ClerkError).errors[0].message);
+      } else {
+        setAuthError("An error occurred during signup. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <h2 className="text-xl font-semibold">Sign Up</h2>
+        </CardHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
+          <Input label="Email" type="email" {...register("email")} />
+          {errors.email?.message && (
+            <div className="text-red-500 text-sm">{errors.email.message}</div>
+          )}
+          <Input label="Password" type="password" {...register("password")} />
+          {errors.password?.message && (
+            <div className="text-red-500 text-sm">
+              {errors.password.message}
+            </div>
+          )}
+          <Input
+            label="Confirm Password"
+            type="password"
+            {...register("passwordConfirmation")}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {errors.passwordConfirmation?.message && (
+            <div className="text-red-500 text-sm">
+              {errors.passwordConfirmation.message}
+            </div>
+          )}
+          {authError && <div className="text-red-500 text-sm">{authError}</div>}
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Signing Up..." : "Sign Up"}
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }

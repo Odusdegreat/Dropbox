@@ -1,12 +1,7 @@
-import SignUpForm from "@/components/SignUpForm";
-import React from "react";
+// app/sign-up/page.tsx
+"use client";
+import { SignUp } from "@clerk/nextjs";
 
-function SignUpPage() {
-  return (
-    <div>
-      <SignUpForm />
-    </div>
-  );
+export default function SignUpPage() {
+  return <SignUp />;
 }
-
-export default SignUpPage;

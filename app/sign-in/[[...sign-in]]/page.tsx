@@ -1,12 +1,7 @@
-import SignInForm from "@/components/SignInForm";
-import React from "react";
+// app/sign-in/page.tsx
+"use client";
+import { SignIn } from "@clerk/nextjs";
 
-function SignInPage() {
-  return (
-    <div>
-      <SignInForm />
-    </div>
-  );
+export default function SignInPage() {
+  return <SignIn />;
 }
-
-export default SignInPage;
