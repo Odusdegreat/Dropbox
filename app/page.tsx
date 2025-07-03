@@ -166,7 +166,7 @@ export default function SignUpForm() {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute top-9 right-3 text-gray-500"
           >
-            {showPassword ? <FaEyeSlash /> : <IoEyeSharp />}
+            {showPassword ? <IoEyeSharp /> : <FaEyeSlash />}
           </button>
           {errors.password && (
             <p className="text-sm text-red-500">{errors.password.message}</p>
