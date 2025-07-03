@@ -2,9 +2,16 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { FaFolderPlus, FaFileImage, FaStar, FaTrashAlt } from "react-icons/fa";
+import {
+  FaFolderPlus,
+  FaFileImage,
+  FaStar,
+  FaTrashAlt,
+  FaRegUser,
+} from "react-icons/fa";
 import { MdCloudUpload, MdRefresh } from "react-icons/md";
 import { IoMdHome } from "react-icons/io";
+import { GrNotes } from "react-icons/gr";
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -32,14 +39,25 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">
-            Welcome {user?.firstName || "User"} 👋
-          </h1>
+    <main className="min-h-screen bg-[#0f0f0f] text-white">
+      {/* Top Navigation */}
+      <nav className="flex items-center justify-between px-6 py-4 bg-[#111827] border-b border-[#2a2a2a]">
+        <h1 className="text-2xl font-bold text-white">📦 Droply</h1>
+        <div className="flex items-center gap-6">
+          <button className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition">
+            <GrNotes /> My Files
+          </button>
+          <button className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition">
+            <FaRegUser /> Profile
+          </button>
+          <span className="text-sm text-gray-400 hidden sm:inline">
+            {user?.emailAddresses[0]?.emailAddress || ""}
+          </span>
         </div>
+      </nav>
 
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Upload and File Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upload Section */}
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
@@ -72,7 +90,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* File Section */}
+          {/* Files Section */}
           <div className="col-span-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
             <div className="flex justify-between items-center mb-5">
               <div>
