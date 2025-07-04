@@ -12,8 +12,11 @@ import {
 import { MdCloudUpload, MdRefresh } from "react-icons/md";
 import { IoMdHome } from "react-icons/io";
 import { GrNotes } from "react-icons/gr";
+import { IoCloudUploadOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user } = useUser();
 
   type FileItem = {
@@ -42,12 +45,18 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Top Navigation */}
       <nav className="flex items-center justify-between px-6 py-4 bg-[#111827] border-b border-[#2a2a2a]">
-        <h1 className="text-2xl font-bold text-white">📦 Droply</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+          <IoCloudUploadOutline className="text-blue-400" />
+          Droply
+        </h1>
         <div className="flex items-center gap-6">
           <button className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition">
             <GrNotes /> My Files
           </button>
-          <button className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition">
+          <button
+            onClick={() => router.push("/profile")}
+            className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition"
+          >
             <FaRegUser /> Profile
           </button>
           <span className="text-sm text-gray-400 hidden sm:inline">
@@ -63,12 +72,15 @@ export default function DashboardPage() {
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
             <h2 className="text-lg font-semibold mb-4">Upload</h2>
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md">
-                <FaFolderPlus /> New Folder
-              </button>
-              <button className="w-full flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md">
-                <FaFileImage /> Add Image
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md">
+                  <FaFolderPlus /> New Folder
+                </button>
+                <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md">
+                  <FaFileImage /> Add Image
+                </button>
+              </div>
+
               <div className="mt-6 border border-dashed border-gray-600 rounded-md p-5 text-center">
                 <MdCloudUpload className="text-3xl mx-auto mb-2" />
                 <p>
@@ -79,6 +91,7 @@ export default function DashboardPage() {
                 </p>
                 <p className="text-sm mt-1 text-gray-400">Images up to 5MB</p>
               </div>
+
               <div className="text-xs mt-4 text-gray-500">
                 <p>Tips:</p>
                 <ul className="list-disc ml-4 mt-1">
