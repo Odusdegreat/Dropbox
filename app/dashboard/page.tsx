@@ -2,19 +2,16 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import {
-  FaFolderPlus,
-  FaFileImage,
-  FaStar,
-  FaTrashAlt,
-  FaRegUser,
-} from "react-icons/fa";
-import { MdCloudUpload, MdRefresh } from "react-icons/md";
+import { FaFolderPlus, FaFileImage, FaRegUser } from "react-icons/fa";
+import { MdCloudUpload, MdRefresh, MdUploadFile } from "react-icons/md";
 import { IoMdHome } from "react-icons/io";
 import { GrNotes } from "react-icons/gr";
 import { IoCloudUploadOutline } from "react-icons/io5";
-import { MdUploadFile } from "react-icons/md";
 import { useRouter } from "next/navigation";
+
+import { LiaFileSolid } from "react-icons/lia";
+import { CiStar } from "react-icons/ci";
+import { LuTrash } from "react-icons/lu";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -45,7 +42,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Top Navigation */}
-      <nav className="flex items-center justify-between px-6 py-4 bg-[#111827] border-b border-[#2a2a2a]">
+      <nav className="flex items-center justify-between px-6 py-4 bg-[#0f0f0f] border-b border-[#2a2a2a]">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
           <IoCloudUploadOutline className="text-blue-400" />
           Dropbox
@@ -111,18 +108,18 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-5">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Your Files</h2>
-                <div className="flex flex-wrap gap-4 text-sm mt-2">
-                  <button className="text-blue-400 border-b-2 border-blue-400 pb-0.5">
-                    All Files
+                <div className="flex flex-wrap gap-6 text-sm mt-3">
+                  <button className="flex items-center gap-2 text-blue-400 border-b-2 border-blue-400 pb-0.5 cursor-pointer mr-25">
+                    <LiaFileSolid /> All Files
                   </button>
-                  <button className="flex items-center gap-2 text-yellow-400">
-                    <FaStar /> Starred
+                  <button className="flex items-center gap-2 text-white cursor-pointer mr-25">
+                    <CiStar className="text-lg" /> Starred
                     <span className="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded">
                       0
                     </span>
                   </button>
-                  <button className="flex items-center gap-2 text-red-400">
-                    <FaTrashAlt /> Trash
+                  <button className="flex items-center gap-2 text-white cursor-pointer mr-25">
+                    <LuTrash /> Trash
                     <span className="text-xs bg-red-500 text-black px-2 py-0.5 rounded">
                       1
                     </span>
