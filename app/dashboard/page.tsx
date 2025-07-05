@@ -13,6 +13,7 @@ import { MdCloudUpload, MdRefresh } from "react-icons/md";
 import { IoMdHome } from "react-icons/io";
 import { GrNotes } from "react-icons/gr";
 import { IoCloudUploadOutline } from "react-icons/io5";
+import { MdUploadFile } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
@@ -47,15 +48,15 @@ export default function DashboardPage() {
       <nav className="flex items-center justify-between px-6 py-4 bg-[#111827] border-b border-[#2a2a2a]">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
           <IoCloudUploadOutline className="text-blue-400" />
-          Droply
+          Dropbox
         </h1>
         <div className="flex items-center gap-6">
-          <button className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition">
+          <button className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition cursor-pointer">
             <GrNotes /> My Files
           </button>
           <button
             onClick={() => router.push("/profile")}
-            className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition"
+            className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition cursor-pointer"
           >
             <FaRegUser /> Profile
           </button>
@@ -70,19 +71,21 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upload Section */}
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
-            <h2 className="text-lg font-semibold mb-4">Upload</h2>
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+              <MdUploadFile /> Upload
+            </h2>
             <div className="space-y-3">
               <div className="flex flex-wrap gap-3">
-                <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md">
+                <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md cursor-pointer">
                   <FaFolderPlus /> New Folder
                 </button>
-                <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md">
+                <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#1f2937] transition px-4 py-2 rounded-md cursor-pointer">
                   <FaFileImage /> Add Image
                 </button>
               </div>
 
-              <div className="mt-6 border border-dashed border-gray-600 rounded-md p-5 text-center">
-                <MdCloudUpload className="text-3xl mx-auto mb-2" />
+              <div className="mt-6 border border-dashed border-gray-600 rounded-md p-8 h-[250px] flex flex-col justify-center items-center text-center">
+                <MdCloudUpload className="text-4xl text-blue-400 mb-3" />
                 <p>
                   Drag and drop your image here, or{" "}
                   <span className="text-blue-400 cursor-pointer underline">
@@ -108,43 +111,43 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-5">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Your Files</h2>
-                <div className="flex gap-3 text-sm">
+                <div className="flex flex-wrap gap-4 text-sm mt-2">
                   <button className="text-blue-400 border-b-2 border-blue-400 pb-0.5">
                     All Files
                   </button>
-                  <button className="flex items-center gap-1 text-yellow-400">
-                    <FaStar /> Starred{" "}
+                  <button className="flex items-center gap-2 text-yellow-400">
+                    <FaStar /> Starred
                     <span className="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded">
                       0
                     </span>
                   </button>
-                  <button className="flex items-center gap-1 text-red-400">
-                    <FaTrashAlt /> Trash{" "}
+                  <button className="flex items-center gap-2 text-red-400">
+                    <FaTrashAlt /> Trash
                     <span className="text-xs bg-red-500 text-black px-2 py-0.5 rounded">
                       1
                     </span>
                   </button>
                 </div>
               </div>
-              <button className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition">
+              <button className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition cursor-pointer">
                 <MdRefresh /> Refresh
               </button>
             </div>
 
             <div className="mb-4">
-              <button className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-700 rounded hover:bg-gray-600 transition">
+              <button className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-700 rounded hover:bg-gray-600 transition cursor-pointer">
                 <IoMdHome /> Home
               </button>
             </div>
 
             {/* Files List */}
             {files.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center border border-dashed border-gray-600 py-16 rounded-lg text-gray-400">
-                <MdCloudUpload className="text-4xl mb-2 text-blue-400" />
+              <div className="flex flex-col items-center justify-center text-center border border-dashed border-gray-600 py-20 rounded-lg text-gray-400">
+                <MdCloudUpload className="text-5xl mb-2 text-blue-400" />
                 <p>No files available</p>
                 <p className="text-sm mt-1">
                   Upload your first file to get started with your personal cloud
-                  storage
+                  storage.
                 </p>
               </div>
             ) : (

@@ -3,7 +3,7 @@
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { FaRegUser, FaEnvelope } from "react-icons/fa";
 
-export default function ProfilePage() {
+export default function Page() {
   const { user } = useUser();
 
   return (
