@@ -1,7 +1,7 @@
 // lib/actions/deleteFile.ts
 import { db } from "@/lib/db";
 import { files } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function deleteFileById(fileId: string, userId: string) {
   return await db

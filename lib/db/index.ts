@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "./schema";
+export * from "./actions";
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" }); // Optional, only if needed here
 

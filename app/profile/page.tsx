@@ -2,6 +2,7 @@
 
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { FaRegUser, FaEnvelope } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Page() {
   const { user } = useUser();
@@ -14,11 +15,13 @@ export default function Page() {
           <h2 className="text-xl font-semibold">User Profile</h2>
         </div>
 
-        <div className="flex flex-col items-center mb-6">
-          <img
+          <Image
             src={user?.imageUrl || "/default-avatar.png"}
             alt="User Avatar"
+            width={80}
+            height={80}
             className="w-20 h-20 rounded-full border-2 border-gray-600 mb-2"
+            priority
           />
           <p className="text-gray-300 text-sm flex items-center gap-1">
             <FaEnvelope />
