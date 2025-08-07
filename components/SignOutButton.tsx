@@ -17,6 +17,4 @@ export default function SignoutButton() {
     </button>
   );
 }
-// This button can be used in your layout or any component where you want to provide a logout option.
-// You can import and use it like this:
-// import LogoutButton from "@/components/LogoutButton";
+

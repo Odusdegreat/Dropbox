@@ -1,14 +1,15 @@
 // app/api/files/[fileId]/delete/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { deleteFileById } from "@/lib/actions/deleteFile";
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { fileId: string } }
+  context: { params: { fileId: string } } // ✅ use plain object, not Promise
 ) {
   const { userId } = await auth();
-  const fileId = context.params.fileId;
+  const fileId = context.params.fileId; // ✅ directly access params
 
   if (!userId || !fileId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
