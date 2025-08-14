@@ -1,51 +1,26 @@
-import { db } from "@/lib/db";
-import { files } from "@/lib/db/schema";
-import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
-export async function POST(request: NextRequest) {
-  try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
-    //parse reuquest body
-    const body = await request.json();
-    const { imagekit, userId: bodyUserId } = body;
+export async function POST(req: Request) {
+  const formData = await req.formData();
+  const file = formData.get("file") as File | null;
 
-    if (bodyUserId! == userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (!imagekit || !imagekit.url) {
-      return NextResponse.json(
-        { error: "Invalid file upload data" },
-        { status: 401 }
-      );
-    }
-
-    const fileData = {
-      name: imagekit.name || "Untitled",
-      path: imagekit.filePath || `/droply/${userId}/$ {imagekit.name}`,
-      size: imagekit.size || 0,
-      type: imagekit.fileType || "image",
-      fileUrl: imagekit.url,
-      thumbnailUrl: imagekit.thumbnailUrl || null,
-      userId: userId,
-      parentId: null, // Root level by default
-      isFolder: false,
-      isStarred: false,
-      isTrash: false,
-    };
-
-    const [newFile] = await db.insert(files).values(fileData).returning();
-    return NextResponse.json(newFile);
-  } catch {
-    return NextResponse.json(
-      {
-        error: "Failed to save info to database",
-      },
-      { status: 500 }
-    );
+  if (!file) {
+    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
   }
+
+  // Create uploads folder if not exists
+  const uploadDir = path.join(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+  // Save file locally
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const filePath = path.join(uploadDir, file.name);
+  fs.writeFileSync(filePath, buffer);
+
+  return NextResponse.json({
+    message: "File uploaded successfully",
+    fileName: file.name,
+  });
 }
