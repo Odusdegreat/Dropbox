@@ -1,71 +1,65 @@
+// components/UploadWidget.tsx
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
-export default function FileUploader() {
-  const [file, setFile] = useState<File | null>(null);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function UploadWidget() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a file first.");
+  const handleAddImageClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File is too big (5MB max)");
       return;
     }
 
-    try {
-      setLoading(true);
-      setMessage("");
+    const storageRef = ref(storage, `uploads/${Date.now()}-${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-      const formData = new FormData();
-      formData.append("file", file);
+    setUploading(true);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error(`Upload failed: ${res.statusText}`);
+    uploadTask.on(
+      "state_changed",
+      null,
+      (error) => {
+        setUploading(false);
+        alert("Upload failed: " + error.message);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setUploading(false);
+        alert("Upload successful!");
+        console.log("Image URL:", downloadURL);
+        // You can now save this URL to your database or show a preview
       }
-
-      const data = await res.json();
-      setMessage(data.message || "Upload complete ✅");
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Failed to upload file.");
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-gray-900 text-white max-w-md">
-      <label
-        htmlFor="file-upload"
-        className="block mb-2 text-sm font-medium text-gray-300"
-      >
-        Choose a file
-      </label>
-      <input
-        id="file-upload"
-        type="file"
-        title="Select a file to upload"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        className="mb-4"
-      />
-      <button
-        onClick={handleUpload}
-        disabled={loading}
-        className={`px-4 py-2 rounded ${
-          loading
-            ? "bg-gray-600 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
-      >
-        {loading ? "Uploading..." : "Upload"}
-      </button>
-      {message && <p className="mt-3 text-green-400">{message}</p>}
+    <div className="bg-[#111] text-white p-4 rounded-md">
+      <div className="flex gap-2 mb-4">
+        <button
+          className="bg-blue-600 px-3 py-2 rounded"
+          onClick={handleAddImageClick}
+        >
+          {uploading ? "Uploading..." : "Add Image"}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+          title="Select an image to upload"
+        />
+      </div>
     </div>
   );
 }
