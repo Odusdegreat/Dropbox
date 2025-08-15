@@ -29,7 +29,7 @@ export default function FileUpload() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          console.log("File available at:", url);
+          console.log("✅ File available at:", url);
           setUploading(false);
         });
       }
@@ -60,7 +60,7 @@ export default function FileUpload() {
       <label htmlFor="fileInput" className="block cursor-pointer">
         {uploading
           ? `Uploading... ${progress}%`
-          : "Drag & drop your image here, or click to browse"}
+          : "Drag & drop your file here, or click to browse"}
       </label>
     </div>
   );
