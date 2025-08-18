@@ -13,6 +13,9 @@ import { LiaFileSolid } from "react-icons/lia";
 import { CiStar } from "react-icons/ci";
 import { LuTrash } from "react-icons/lu";
 
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
+
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useUser();
@@ -21,9 +24,12 @@ export default function DashboardPage() {
     id: string;
     name: string;
     createdAt: string;
+    url?: string;
   };
 
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -38,6 +44,53 @@ export default function DashboardPage() {
 
     fetchFiles();
   }, []);
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    const storageRef = ref(storage, `uploads/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    setUploading(true);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(Math.round(percent));
+      },
+      (error) => {
+        console.error(error);
+        setUploading(false);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          console.log("✅ File available at:", url);
+          setFiles((prev) => [
+            ...prev,
+            {
+              id: file.name,
+              name: file.name,
+              createdAt: new Date().toLocaleString(),
+              url,
+            },
+          ]);
+          setUploading(false);
+          setProgress(0);
+        });
+      }
+    );
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    handleFiles(e.dataTransfer.files);
+  };
+
+  const handleBrowse = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFiles(e.target.files);
+  };
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
@@ -64,7 +117,6 @@ export default function DashboardPage() {
       </nav>
 
       <div className="max-w-6xl mx-auto p-6">
-        {/* Upload and File Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upload Section */}
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
@@ -81,15 +133,37 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div className="mt-6 border border-dashed border-gray-600 rounded-md p-8 h-[250px] flex flex-col justify-center items-center text-center">
-                <MdCloudUpload className="text-4xl text-blue-400 mb-3" />
-                <p>
-                  Drag and drop your image here, or{" "}
-                  <span className="text-blue-400 cursor-pointer underline">
-                    browse
-                  </span>
-                </p>
-                <p className="text-sm mt-1 text-gray-400">Images up to 5MB</p>
+              {/* Upload Box */}
+              <div
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                className="mt-6 border border-dashed border-gray-600 rounded-md p-8 h-[250px] flex flex-col justify-center items-center text-center cursor-pointer"
+              >
+                <input
+                  type="file"
+                  id="fileInput"
+                  className="hidden"
+                  onChange={handleBrowse}
+                />
+                <label
+                  htmlFor="fileInput"
+                  className="flex flex-col items-center cursor-pointer"
+                >
+                  <MdCloudUpload className="text-4xl text-blue-400 mb-3" />
+                  {uploading ? (
+                    <p>Uploading... {progress}%</p>
+                  ) : (
+                    <>
+                      <p>
+                        Drag & drop your image here, or{" "}
+                        <span className="text-blue-400 underline">browse</span>
+                      </p>
+                      <p className="text-sm mt-1 text-gray-400">
+                        Images up to 5MB
+                      </p>
+                    </>
+                  )}
+                </label>
               </div>
 
               <div className="text-xs mt-4 text-gray-500">
@@ -156,6 +230,16 @@ export default function DashboardPage() {
                   >
                     <p className="font-medium">{file.name}</p>
                     <p className="text-sm text-gray-400">{file.createdAt}</p>
+                    {file.url && (
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 text-sm underline mt-2 inline-block"
+                      >
+                        View File
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
