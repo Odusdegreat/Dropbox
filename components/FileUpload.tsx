@@ -51,16 +51,20 @@ export default function FileUpload() {
       onDrop={handleDrop}
       className="border-2 border-dashed border-gray-500 p-6 text-center cursor-pointer rounded-lg"
     >
+      {/* ✅ Hidden input + visible label */}
       <input
         type="file"
         id="fileInput"
         className="hidden"
         onChange={handleBrowse}
       />
-      <label htmlFor="fileInput" className="block cursor-pointer">
+      <label
+        htmlFor="fileInput"
+        className="block cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
         {uploading
           ? `Uploading... ${progress}%`
-          : "Drag & drop your file here, or click to browse"}
+          : "📂 Drag & drop your file here, or click to browse"}
       </label>
     </div>
   );
