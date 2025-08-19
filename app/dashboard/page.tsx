@@ -2,13 +2,12 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaFolderPlus, FaFileImage, FaRegUser } from "react-icons/fa";
 import { MdCloudUpload, MdRefresh, MdUploadFile } from "react-icons/md";
 import { IoMdHome } from "react-icons/io";
 import { GrNotes } from "react-icons/gr";
 import { IoCloudUploadOutline } from "react-icons/io5";
-import { useRouter } from "next/navigation";
-
 import { LiaFileSolid } from "react-icons/lia";
 import { CiStar } from "react-icons/ci";
 import { LuTrash } from "react-icons/lu";
@@ -31,6 +30,7 @@ export default function DashboardPage() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // Fetch saved files from API (if you’re storing metadata in DB)
   useEffect(() => {
     const fetchFiles = async () => {
       try {
@@ -45,6 +45,7 @@ export default function DashboardPage() {
     fetchFiles();
   }, []);
 
+  // Upload logic
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
@@ -67,6 +68,8 @@ export default function DashboardPage() {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
           console.log("✅ File available at:", url);
+
+          // Add uploaded file to state
           setFiles((prev) => [
             ...prev,
             {
@@ -116,6 +119,7 @@ export default function DashboardPage() {
         </div>
       </nav>
 
+      {/* Dashboard Layout */}
       <div className="max-w-6xl mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upload Section */}
@@ -166,6 +170,7 @@ export default function DashboardPage() {
                 </label>
               </div>
 
+              {/* Upload Tips */}
               <div className="text-xs mt-4 text-gray-500">
                 <p>Tips:</p>
                 <ul className="list-disc ml-4 mt-1">
