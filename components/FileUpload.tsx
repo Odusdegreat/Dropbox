@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
 
-export default function FileUpload() {
+export default function FileUpload({
+  onUploadComplete,
+}: {
+  onUploadComplete: () => void;
+}) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -29,8 +34,9 @@ export default function FileUpload() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          console.log("✅ File available at:", url);
+          console.log("✅ File uploaded at:", url);
           setUploading(false);
+          onUploadComplete();
         });
       }
     );
@@ -49,23 +55,28 @@ export default function FileUpload() {
     <div
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
-      className="border-2 border-dashed border-gray-500 p-6 text-center cursor-pointer rounded-lg"
+      className="border-2 border-dashed border-gray-500 p-6 text-center cursor-pointer rounded-lg space-y-3"
     >
-      {/* ✅ Hidden input + visible label */}
+      {/* Hidden input */}
       <input
         type="file"
         id="fileInput"
         className="hidden"
         onChange={handleBrowse}
       />
-      <label
-        htmlFor="fileInput"
-        className="block cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        {uploading
-          ? `Uploading... ${progress}%`
-          : "📂 Drag & drop your file here, or click to browse"}
-      </label>
+
+      {/* Browse button using shadcn */}
+      <Button asChild variant="outline">
+        <label htmlFor="fileInput" className="cursor-pointer">
+          {uploading ? `Uploading... ${progress}%` : "Browse File"}
+        </label>
+      </Button>
+
+      <p className="text-sm text-gray-500">Or drag & drop your file here</p>
+
+      {uploading && (
+        <p className="mt-2 text-sm text-blue-500">Progress: {progress}%</p>
+      )}
     </div>
   );
 }
