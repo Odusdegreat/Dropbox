@@ -397,7 +397,7 @@ export default function DashboardPage() {
             {/* Listing */}
             {loadingList ? (
               <div className="flex items-center justify-center py-16 text-gray-400">
-                Loading…
+                <MdRefresh className="animate-spin text-3xl" />
               </div>
             ) : folders.length === 0 && files.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center border border-dashed border-gray-600 py-20 rounded-lg text-gray-400">
