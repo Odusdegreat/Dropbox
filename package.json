@@ -29,6 +29,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
+    "filesize": "^11.0.2",
     "firebase": "^11.10.0",
     "framer-motion": "^12.19.1",
     "imagekit": "^6.0.0",

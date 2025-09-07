@@ -12,7 +12,7 @@ import { storage } from "../../lib/firebase";
 import { LiaFileSolid } from "react-icons/lia";
 import { LuTrash } from "react-icons/lu";
 import { CiStar } from "react-icons/ci";
-import prettySize from "prettysize";
+import filesize from "filesize"; // ✅ replacement for prettysize
 
 interface FileData {
   name: string;
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="text-sm text-gray-400">
-                    {prettySize(f.size)}
+                    {filesize(f.size)}{" "}
                     {f.updated && (
                       <span className="ml-2">
                         • {new Date(f.updated).toLocaleString()}
