@@ -12,7 +12,7 @@ import { storage } from "../../lib/firebase";
 import { LiaFileSolid } from "react-icons/lia";
 import { LuTrash } from "react-icons/lu";
 import { CiStar } from "react-icons/ci";
-import { filesize } from "filesize"; // ✅ replacement for prettysize
+import prettySize from "prettysize";
 
 interface FileData {
   name: string;
@@ -213,8 +213,6 @@ export default function DashboardPage() {
                       <button
                         onClick={() => moveToTrash(f.fullPath)}
                         className="p-1 rounded text-red-400 hover:text-red-600"
-                        title="Move to Trash"
-                        aria-label="Move to Trash"
                       >
                         <LuTrash />
                       </button>
@@ -222,7 +220,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="text-sm text-gray-400">
-                    {filesize(f.size)}{" "}
+                    {prettySize(f.size)}
                     {f.updated && (
                       <span className="ml-2">
                         • {new Date(f.updated).toLocaleString()}
