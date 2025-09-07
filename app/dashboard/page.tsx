@@ -6,10 +6,9 @@ import {
   listAll,
   getDownloadURL,
   getMetadata,
-  deleteObject,
   uploadBytesResumable,
 } from "firebase/storage";
-import { storage } from "../firebase";
+import { storage } from "../../lib/firebase";
 import { LiaFileSolid } from "react-icons/lia";
 import { LuTrash } from "react-icons/lu";
 import { CiStar } from "react-icons/ci";
@@ -27,7 +26,7 @@ interface FileData {
 export default function DashboardPage() {
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPath, setCurrentPath] = useState("uploads/");
+  const [currentPath] = useState("uploads/");
   const [starred, setStarred] = useState<string[]>([]);
   const [trashed, setTrashed] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"all" | "starred" | "trash">(
@@ -196,6 +195,16 @@ export default function DashboardPage() {
                             ? "text-yellow-400"
                             : "text-gray-400"
                         }`}
+                        aria-label={
+                          starred.includes(f.fullPath)
+                            ? "Unstar file"
+                            : "Star file"
+                        }
+                        title={
+                          starred.includes(f.fullPath)
+                            ? "Unstar file"
+                            : "Star file"
+                        }
                       >
                         <CiStar />
                       </button>
@@ -204,6 +213,8 @@ export default function DashboardPage() {
                       <button
                         onClick={() => moveToTrash(f.fullPath)}
                         className="p-1 rounded text-red-400 hover:text-red-600"
+                        title="Move to Trash"
+                        aria-label="Move to Trash"
                       >
                         <LuTrash />
                       </button>
