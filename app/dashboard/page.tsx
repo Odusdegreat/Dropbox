@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 
 import { FaFolderPlus, FaFileImage, FaRegUser } from "react-icons/fa";
 import { MdCloudUpload, MdRefresh, MdUploadFile } from "react-icons/md";
@@ -30,6 +31,8 @@ type FileItem = {
   size?: number;
   contentType?: string;
   updated?: string;
+  starred?: boolean; // ⭐
+  trashed?: boolean; // 🗑
 };
 
 export default function DashboardPage() {
@@ -47,9 +50,14 @@ export default function DashboardPage() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Hidden inputs (browse + add image)
+  // Hidden inputs
   const browseInputRef = useRef<HTMLInputElement | null>(null);
   const addImageInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState<"all" | "starred" | "trash">(
+    "all"
+  );
 
   // Breadcrumbs
   const crumbs = useMemo(() => {
@@ -57,7 +65,7 @@ export default function DashboardPage() {
     return parts.map((_, idx) => parts.slice(0, idx + 1).join("/"));
   }, [currentPath]);
 
-  // -------- Helpers --------
+  // Helpers
   const sanitizeFolderName = (name: string) =>
     name
       .trim()
@@ -74,18 +82,16 @@ export default function DashboardPage() {
     return `${mb.toFixed(2)} MB`;
   };
 
-  // -------- Listing --------
+  // Listing
   const listFolder = async (path: string) => {
     setLoadingList(true);
     try {
       const listRef = ref(storage, path.endsWith("/") ? path : `${path}/`);
       const res = await listAll(listRef);
 
-      // Folders (prefixes)
       const folderNames = res.prefixes.map((p) => p.name);
       setFolders(folderNames);
 
-      // Files (items)
       const fileItems: FileItem[] = await Promise.all(
         res.items.map(async (itemRef) => {
           const meta = await getMetadata(itemRef);
@@ -96,7 +102,7 @@ export default function DashboardPage() {
             try {
               url = await getDownloadURL(itemRef);
             } catch {
-              // ignore if not publicly retrievable
+              // ignore if not public
             }
           }
 
@@ -107,11 +113,12 @@ export default function DashboardPage() {
             size: meta.size,
             contentType: meta.contentType,
             updated: meta.updated,
+            starred: false,
+            trashed: false,
           };
         })
       );
 
-      // Hide placeholder files like ".keep"
       setFiles(fileItems.filter((f) => f.name !== ".keep"));
     } catch (e) {
       console.error("Error listing folder:", e);
@@ -124,7 +131,7 @@ export default function DashboardPage() {
     listFolder(currentPath);
   }, [currentPath]);
 
-  // -------- Uploads --------
+  // Uploads
   const handleFiles = (fileList: FileList | null, targetPath?: string) => {
     if (!fileList || fileList.length === 0) return;
     const file = fileList[0];
@@ -148,7 +155,6 @@ export default function DashboardPage() {
       async () => {
         setUploading(false);
         setProgress(0);
-        // Refresh listing to show newly uploaded file
         await listFolder(currentPath);
       }
     );
@@ -161,17 +167,16 @@ export default function DashboardPage() {
 
   const onBrowseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(e.target.files);
-    e.currentTarget.value = ""; // reset input
+    e.currentTarget.value = "";
   };
 
-  // -------- New Folder --------
+  // New Folder
   const createFolder = async () => {
     const name = prompt("Enter new folder name:");
     if (!name) return;
     const safe = sanitizeFolderName(name);
     if (!safe) return;
 
-    // Firebase Storage is flat; create placeholder file to mimic folder
     const placeholderRef = ref(storage, `${currentPath}/${safe}/.keep`);
     const emptyBlob = new Blob([""], { type: "text/plain" });
 
@@ -197,10 +202,17 @@ export default function DashboardPage() {
     );
   };
 
-  // -------- Add Image (into current folder) --------
+  // Add Image
   const addImageToCurrentFolder = () => {
     addImageInputRef.current?.click();
   };
+
+  // Visible files based on tab
+  const visibleFiles = useMemo(() => {
+    if (activeTab === "starred") return files.filter((f) => f.starred);
+    if (activeTab === "trash") return files.filter((f) => f.trashed);
+    return files;
+  }, [files, activeTab]);
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
@@ -247,7 +259,6 @@ export default function DashboardPage() {
                 >
                   <FaFileImage /> Add Image
                 </button>
-                {/* Hidden input for "Add Image" */}
                 <input
                   ref={addImageInputRef}
                   id="addImageInput"
@@ -259,7 +270,7 @@ export default function DashboardPage() {
                 />
               </div>
 
-              {/* Upload Dropzone */}
+              {/* Dropzone */}
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={onDrop}
@@ -294,20 +305,6 @@ export default function DashboardPage() {
                   )}
                 </button>
               </div>
-
-              {/* Tips */}
-              <div className="text-xs mt-4 text-gray-500">
-                <p>Tips:</p>
-                <ul className="list-disc ml-4 mt-1">
-                  <li>Files are private and only visible to you</li>
-                  <li>Supported image formats: JPG, PNG, GIF, WebP</li>
-                  <li>Maximum file size: 5MB (example limit)</li>
-                </ul>
-              </div>
-              <p className="text-xs text-gray-400">
-                Current folder:{" "}
-                <span className="font-semibold">{currentPath}</span>
-              </p>
             </div>
           </div>
 
@@ -316,6 +313,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-5">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Your Files</h2>
+
                 {/* Breadcrumbs */}
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-300 mt-2">
                   <button
@@ -341,19 +339,42 @@ export default function DashboardPage() {
 
                 {/* Tabs */}
                 <div className="flex flex-wrap gap-6 text-sm mt-3">
-                  <button className="flex items-center gap-2 text-blue-400 border-b-2 border-blue-400 pb-0.5 cursor-pointer">
+                  <button
+                    onClick={() => setActiveTab("all")}
+                    className={`flex items-center gap-2 cursor-pointer ${
+                      activeTab === "all"
+                        ? "text-blue-400 border-b-2 border-blue-400 pb-0.5"
+                        : "text-white hover:text-gray-300"
+                    }`}
+                  >
                     <LiaFileSolid /> All Files
                   </button>
-                  <button className="flex items-center gap-2 text-white cursor-pointer">
+
+                  <button
+                    onClick={() => setActiveTab("starred")}
+                    className={`flex items-center gap-2 cursor-pointer ${
+                      activeTab === "starred"
+                        ? "text-blue-400 border-b-2 border-blue-400 pb-0.5"
+                        : "text-white hover:text-gray-300"
+                    }`}
+                  >
                     <CiStar className="text-lg" /> Starred{" "}
                     <span className="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded">
-                      0
+                      {files.filter((f) => f.starred).length}
                     </span>
                   </button>
-                  <button className="flex items-center gap-2 text-white cursor-pointer">
+
+                  <button
+                    onClick={() => setActiveTab("trash")}
+                    className={`flex items-center gap-2 cursor-pointer ${
+                      activeTab === "trash"
+                        ? "text-blue-400 border-b-2 border-blue-400 pb-0.5"
+                        : "text-white hover:text-gray-300"
+                    }`}
+                  >
                     <LuTrash /> Trash{" "}
                     <span className="text-xs bg-red-500 text-black px-2 py-0.5 rounded">
-                      1
+                      {files.filter((f) => f.trashed).length}
                     </span>
                   </button>
                 </div>
@@ -372,13 +393,10 @@ export default function DashboardPage() {
               <div className="flex items-center justify-center py-16 text-gray-400">
                 <MdRefresh className="animate-spin text-3xl" />
               </div>
-            ) : folders.length === 0 && files.length === 0 ? (
+            ) : folders.length === 0 && visibleFiles.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center border border-dashed border-gray-600 py-20 rounded-lg text-gray-400">
                 <MdCloudUpload className="text-5xl mb-2 text-blue-400" />
                 <p>No files or folders here yet</p>
-                <p className="text-sm mt-1">
-                  Create a folder or upload a file to get started.
-                </p>
               </div>
             ) : (
               <>
@@ -400,9 +418,6 @@ export default function DashboardPage() {
                           <div className="font-medium flex items-center gap-2">
                             📁 {name}
                           </div>
-                          <p className="text-xs text-gray-400 mt-1">
-                            Click to open
-                          </p>
                         </li>
                       ))}
                     </ul>
@@ -410,13 +425,13 @@ export default function DashboardPage() {
                 )}
 
                 {/* Files */}
-                {files.length > 0 && (
+                {visibleFiles.length > 0 && (
                   <>
                     <h3 className="text-sm font-semibold mb-2 text-gray-300">
                       Files
                     </h3>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {files.map((f) => {
+                      {visibleFiles.map((f) => {
                         const isImage = (f.contentType || "").startsWith(
                           "image/"
                         );
@@ -442,12 +457,21 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="block mt-3"
+                                title={`Preview image: ${f.name}`}
                               >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
+                                <Image
                                   src={f.url}
                                   alt={f.name}
+                                  width={400}
+                                  height={128}
                                   className="w-full h-32 object-cover rounded"
+                                  style={{
+                                    width: "100%",
+                                    height: "128px",
+                                    objectFit: "cover",
+                                    borderRadius: "0.5rem",
+                                  }}
+                                  unoptimized
                                 />
                               </a>
                             )}
@@ -461,6 +485,39 @@ export default function DashboardPage() {
                                 View File
                               </a>
                             )}
+
+                            {/* Actions */}
+                            <div className="flex gap-3 mt-3">
+                              <button
+                                onClick={() =>
+                                  setFiles((prev) =>
+                                    prev.map((file) =>
+                                      file.fullPath === f.fullPath
+                                        ? { ...file, starred: !file.starred }
+                                        : file
+                                    )
+                                  )
+                                }
+                                className="text-sm text-yellow-400 hover:underline"
+                              >
+                                {f.starred ? "Unstar" : "Star"}
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  setFiles((prev) =>
+                                    prev.map((file) =>
+                                      file.fullPath === f.fullPath
+                                        ? { ...file, trashed: !file.trashed }
+                                        : file
+                                    )
+                                  )
+                                }
+                                className="text-sm text-red-400 hover:underline"
+                              >
+                                {f.trashed ? "Restore" : "Trash"}
+                              </button>
+                            </div>
                           </li>
                         );
                       })}
