@@ -255,6 +255,7 @@ export default function DashboardPage() {
                   accept="image/*"
                   className="hidden"
                   onChange={onBrowseChange}
+                  title="Add image file"
                 />
               </div>
 
@@ -270,6 +271,7 @@ export default function DashboardPage() {
                   type="file"
                   className="hidden"
                   onChange={onBrowseChange}
+                  title="Browse files to upload"
                 />
                 <button
                   type="button"
