@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import styles from "./page.module.css";
+import { useLayoutEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
@@ -207,13 +209,20 @@ export default function DashboardPage() {
     addImageInputRef.current?.click();
   };
 
-  // Visible files based on tab
-  const visibleFiles = useMemo(() => {
-    if (activeTab === "starred") return files.filter((f) => f.starred);
-    if (activeTab === "trash") return files.filter((f) => f.trashed);
-    return files;
-  }, [files, activeTab]);
+  // Set storage usage bar width after render
+  useLayoutEffect(() => {
+    const bar = document.querySelector<HTMLDivElement>(".storage-usage-bar");
+    if (bar) {
+      const percent = Math.min(
+        100,
+        (storageUsage / (1024 * 1024) / 50) * 100
+      );
+      bar.style.width = `${percent}%`;
+    }
+  }, [storageUsage]);
 
+  return (
+    <main className="min-h-screen bg-[#0f0f0f] text-white">
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Top Navigation */}
@@ -916,15 +925,13 @@ export default function DashboardPage() {
                     <>
                       <p>
                         Drag & drop your file here, or{" "}
-                        <span className="text-blue-400 underline">browse</span>
-                      </p>
-                      <p className="text-sm mt-1 text-gray-400">
-                        Images up to 5MB
-                      </p>
-                    </>
-                  )}
-                </button>
-              </div>
+                  <div
+                    className="h-3 bg-blue-400 storage-usage-bar"
+                    data-width={Math.min(
+                      100,
+                      (storageUsage / (1024 * 1024) / 50) * 100
+                    )}
+                  />
 
               {/* Storage usage */}
               <div className="mt-3">
