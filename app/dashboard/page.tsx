@@ -24,6 +24,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import styles from "./page.module.css";
 
 // Types
 type FileItem = {
@@ -298,8 +299,20 @@ export default function DashboardPage() {
       list = list.filter((f) => f.name.toLowerCase().includes(q));
     }
     return list;
-  }, [files, activeTab, searchTerm]);
+  useEffect(() => {
+    // Dynamically update the width of the storage usage bar
+    const bar = document.querySelector<HTMLDivElement>('.storage-usage-bar');
+    if (bar) {
+      const percent = Math.min(
+        100,
+        (storageUsage / (1024 * 1024) / 50) * 100
+      );
+      bar.style.width = `${percent}%`;
+    }
+  }, [storageUsage]);
 
+  return (
+    <main className="min-h-screen bg-[#0f0f0f] text-white">
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Top Navigation */}
@@ -380,15 +393,13 @@ export default function DashboardPage() {
                   {uploading ? (
                     <p>Uploading… {progress}%</p>
                   ) : (
-                    <>
-                      <p>
-                        Drag & drop your file here, or{" "}
-                        <span className="text-blue-400 underline">browse</span>
-                      </p>
-                    </>
-                  )}
-                </button>
-              </div>
+                  <div
+                    className="h-3 bg-blue-400 storage-usage-bar"
+                    data-width={Math.min(
+                      100,
+                      (storageUsage / (1024 * 1024) / 50) * 100
+                    )}
+                  />
 
               {/* Storage usage */}
               <div className="mt-3">
