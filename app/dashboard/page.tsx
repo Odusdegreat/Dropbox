@@ -67,6 +67,11 @@ export default function DashboardPage() {
     return parts.map((_, idx) => parts.slice(0, idx + 1).join("/"));
   }, [currentPath]);
 
+  // Storage usage
+  const storageUsage = useMemo(() => {
+    return files.reduce((acc, f) => acc + (f.size || 0), 0);
+  }, [files]);
+
   // Helpers
   const sanitizeFolderName = (name: string) =>
     name
