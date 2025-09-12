@@ -411,7 +411,6 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
 
           {/* Files Section */}
           <div className="col-span-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
@@ -478,6 +477,7 @@ export default function DashboardPage() {
                           : "text-white hover:text-gray-300"
                       }`}
                     >
+                      <LuTrash
                       <LuTrash /> Trash{" "}
                       <span className="text-xs bg-red-500 text-black px-2 py-0.5 rounded">
                         {files.filter((f) => f.trashed).length}
@@ -670,5 +670,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </main>
+</main>
   );
 }
