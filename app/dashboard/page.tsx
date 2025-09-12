@@ -477,7 +477,6 @@ export default function DashboardPage() {
                           : "text-white hover:text-gray-300"
                       }`}
                     >
-                      <LuTrash
                       <LuTrash /> Trash{" "}
                       <span className="text-xs bg-red-500 text-black px-2 py-0.5 rounded">
                         {files.filter((f) => f.trashed).length}
