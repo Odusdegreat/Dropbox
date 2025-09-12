@@ -313,8 +313,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
-  return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Top Navigation */}
       <nav className="flex items-center justify-between px-6 py-4 bg-[#0f0f0f] border-b border-[#2a2a2a]">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
