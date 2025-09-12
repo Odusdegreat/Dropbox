@@ -322,6 +322,7 @@ export default function DashboardPage() {
           </span>
         </div>
       </nav>
+      
 
       <div className="max-w-6xl mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -383,13 +384,12 @@ export default function DashboardPage() {
                     <>
                       <p>
                         Drag & drop your file here, or{" "}
-                  <div
-                    className="h-3 bg-blue-400 storage-usage-bar"
-                    data-width={Math.min(
-                      100,
-                      (storageUsage / (1024 * 1024) / 50) * 100
-                    )}
-                  />
+                        <span className="text-blue-400 underline">browse</span>
+                      </p>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* Storage usage */}
               <div className="mt-3">
@@ -411,6 +411,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+        </div>
 
           {/* Files Section */}
           <div className="col-span-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5">
