@@ -617,7 +617,7 @@ export default function DashboardPage() {
                                     )
                                   )
                                 }
-                                className="text-sm text-yellow-400 hover:underline"
+                                hover:underline"
                               >
                                 {f.starred ? "Unstar" : "Star"}
                               </button>
